@@ -1,0 +1,143 @@
+
+"""
+projekt_2.py: Projekt Bulls & Cows
+
+author: Jakub Jelínek
+
+email: Jelin26174@mot.sps-dopravni.cz
+"""
+
+import random
+
+def generovani_cisla():
+    cisla = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    # random.shuffle náhodně promíchá seznam se všemi čísli 0 až 9
+    random.shuffle(cisla)
+
+    # první č – ne 0
+    for č in cisla:
+        if č != 0:
+            tajne_cislo = str(č)
+            break
+
+    # zbytek čísla (tři další)
+    for č in cisla:
+        if str(č) not in tajne_cislo:
+            tajne_cislo += str(č)
+        if len(tajne_cislo) == 4:
+            break
+    return tajne_cislo
+
+
+def bulls_a_cows(tajne_cislo, tip):
+  # Vypočítá počet bulls a cows pro daný pokus - postupně zastoupí všechny 4 číslice
+    bulls = 0
+    cows = 0
+
+    # Převedem řetězce na seznamy pro snadnější manipulaci
+    tajne_list = list(tajne_cislo)
+    tip_list = list(tip)
+
+    # První průchod pro Bulls (uhodnuto číslo i pozice)
+    # Iterujeme pozpátku, abychom bezpečně odebrali prvky podle indexu
+    for i in range(3, -1, -1):
+        if tajne_list[i] == tip_list[i]:
+            bulls += 1
+            tajne_list.pop(i) # Odebereme bull z obou seznamů
+            tip_list.pop(i)
+
+    # Druhý průchod pro Cows (uhodnuto pouze číslo, ale ne pozice)
+    # Projdeme zbývající číslice tipu
+    for i in range(len(tip_list)):
+        if tip_list[i] in tajne_list:
+            cows += 1
+            # Odebereme první výskyt číslice z tajného seznamu, aby se nepočítala dvakrát
+            tajne_list.remove(tip_list[i])
+
+    return bulls, cows
+
+
+
+def vypis_bulls_cows(bulls, cows):
+    # jednotné/množné číslo
+    # str(cows) - převede číslo na text
+      if bulls == 1:
+        bulls_text = "1 bull"
+      else:
+        bulls_text = str(bulls) + " bulls"
+
+      if cows == 1:
+        cows_text = "1 cow"
+      else:
+        cows_text = str(cows) + " cows"
+
+      print(bulls_text + ", " + cows_text)
+
+
+
+
+def hodnoceni(pocet_pokusu):
+    print("Hodnocení na základě počtu tipů.")
+    if pocet_pokusu <= 4:
+        print("Výborně")
+    elif pocet_pokusu <= 7:
+        print("Normální výkon")
+    elif pocet_pokusu <= 10:
+        print("Nic moc - jsi průměrný")
+    else:
+        print("Katastrofa, proč ses vůbec narodil/a!")
+
+
+
+
+# začátek hry
+print("Zdravím, vítej u hry Bulls & Cows")
+print("-----------------------------------------------")
+print("Vygenerovali jsme náhodné 4místné číslo")
+print("Zkus ho uhodnout")
+print("-----------------------------------------------")
+print("Poďme si zahrát")
+print("-----------------------------------------------")
+print("Pravidla hry: Hráč se snaží uhodnou náhodně generované číslo")
+print("Hádané číslo neobsahuje opakující se čísla jako: 2255")
+print("Pokud uhodneš číslo a jeho umístění program vypíše bull/ bulls")
+print("Když uhodneš pouze číslo a ne jeho umístění program vypíše cows/ cows")
+print("-----------------------------------------------")
+
+tajne_cislo = generovani_cisla()
+pocet_pokusu = 0
+
+# kdybych zadal int(input()) - podmínky typu tip.isdigit() by nefungovali
+print("Zadej 4 místné číslo")
+while True:
+    print("-----------------------------------------------")
+    tip = input(">>> ")
+    # Kontrola zadaného čísla:
+    if not tip.isdigit():
+        print("Chyba: můžeš zadat jen čísla.")
+        continue
+    # Kontrola délky č.:
+    if len(tip) != 4:
+        print("Chyba: číslo musí mít přesně 4 číslice.")
+        continue
+    # Kontrola že číslo nezačína na 0:
+    if tip[0] == "0":
+        print("Chyba: číslo nesmí začínat nulou.")
+        continue
+    # set = ukládá jen jedinečné množiny
+    # to znamená: 1123 - uloží pouze 3 č. což se nerovná 4 a to způsobí print
+    if len(set(tip)) != 4:
+        print("Číslo musí být jedinečné")
+        continue
+
+    pocet_pokusu += 1
+
+    if tip == tajne_cislo:
+        print("Gratuluju, uhádl si číslo: "+ tajne_cislo)
+        print("-----------------------------------------------")
+        hodnoceni(pocet_pokusu)
+        break
+
+    else:
+        bulls, cows = bulls_a_cows(tajne_cislo, tip)
+        vypis_bulls_cows(bulls, cows)
